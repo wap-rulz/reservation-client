@@ -4,14 +4,10 @@ public final class Constants {
     public static final String INPUT_EXIT = "0";
     public static final String USER_TYPE_SELLER = "1";
     public static final String USER_TYPE_CUSTOMER = "2";
-    public static final String USER_TYPE_INVENTORY_SYSTEM_CLERK = "3";
-    public static final String USER_TYPE_WORKSHOP_MANAGER = "4";
 
     public static final String GET_ITEMS = "1";
     public static final String ADD_ITEM = "2";
     public static final String UPDATE_ITEM = "3";
     public static final String REMOVE_ITEM = "4";
     public static final String RESERVE_ITEM = "5";
-    public static final String ORDER_ITEM = "6";
-    public static final String UPDATE_STOCK = "7";
 }
