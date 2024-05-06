@@ -28,7 +28,7 @@ public class ReservationClient {
         int port = Integer.parseInt(args[1].trim());
         ReservationClient client = new ReservationClient(host, port);
         client.initializeConnection();
-        client.processUserRequests(null, null);
+        client.processUserRequests(null);
         client.closeConnection();
     }
 
@@ -54,12 +54,12 @@ public class ReservationClient {
         channel.shutdown();
     }
 
-    private void processUserRequests(Scanner scanner, String loginType) {
+    private void processUserRequests(Scanner scanner) {
         System.out.println("\nWelcome to Reservation Client");
-        if (scanner == null || loginType == null) {
+        if (scanner == null) {
             scanner = new Scanner(System.in);
-            loginType = userLogin(scanner);
         }
+        String loginType = userLogin(scanner);
         switch (loginType) {
             case Constants.USER_TYPE_SELLER:
                 processSellerRequests(scanner);
@@ -69,7 +69,7 @@ public class ReservationClient {
                 break;
             default:
                 System.out.println("Invalid login type. Please try again.");
-                processUserRequests(scanner, loginType);
+                processUserRequests(scanner);
                 break;
         }
     }
@@ -87,8 +87,6 @@ public class ReservationClient {
         System.out.println("\nPlease select your login type:");
         System.out.println("1 - Seller");
         System.out.println("2 - Customer");
-        System.out.println("3 - Inventory System Clerk");
-        System.out.println("4 - Workshop Manager");
         System.out.println("--Enter 0 to exit--");
         System.out.println("\nEnter login type:");
         return readInput(scanner);
@@ -141,7 +139,7 @@ public class ReservationClient {
                 System.out.println("Invalid service type. Please try again.");
                 break;
         }
-        processUserRequests(scanner, userType);
+        processUserRequests(scanner);
     }
 
     private void getItems() {
