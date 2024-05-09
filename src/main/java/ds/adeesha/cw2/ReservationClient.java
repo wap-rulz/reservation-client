@@ -2,16 +2,18 @@ package ds.adeesha.cw2;
 
 import ds.adeesha.cw2.grpc.*;
 import ds.adeesha.cw2.utility.Constants;
+import ds.adeesha.naming.NameServiceClient;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
 public class ReservationClient {
-    private final String host;
-    private final int port;
+    private String host;
+    private int port;
     private ManagedChannel channel;
     private GetItemServiceGrpc.GetItemServiceBlockingStub getItemServiceBlockingStub;
     private AddItemServiceGrpc.AddItemServiceBlockingStub addItemServiceBlockingStub;
@@ -19,22 +21,31 @@ public class ReservationClient {
     private RemoveItemServiceGrpc.RemoveItemServiceBlockingStub removeItemServiceBlockingStub;
     private ReserveItemServiceGrpc.ReserveItemServiceBlockingStub reserveItemServiceBlockingStub;
 
-    public static void main(String[] args) {
-        if (args.length != 2) {
-            System.out.println("Usage ReservationClient <host> <port>");
+    public static void main(String[] args) throws IOException, InterruptedException {
+        if (args.length != 1) {
+            System.out.println("Usage ReservationClient <server id>");
             System.exit(1);
         }
-        String host = args[0];
-        int port = Integer.parseInt(args[1].trim());
-        ReservationClient client = new ReservationClient(host, port);
+        int serverId = Integer.parseInt(args[0]);
+        if (serverId <= 0 || serverId > 3) {
+            System.out.println("Invalid server id: " + serverId + ". Server id must be in {1,2,3}");
+            System.exit(1);
+        }
+        ReservationClient client = new ReservationClient(serverId);
         client.initializeConnection();
         client.processUserRequests(null);
         client.closeConnection();
     }
 
-    private ReservationClient(String host, int port) {
-        this.host = host;
-        this.port = port;
+    private ReservationClient(int serverId) throws IOException, InterruptedException {
+        fetchServerDetails(serverId);
+    }
+
+    private void fetchServerDetails(int serverId) throws IOException, InterruptedException {
+        NameServiceClient client = new NameServiceClient(Constants.NAME_SERVICE_ADDRESS);
+        NameServiceClient.ServiceDetails serviceDetails = client.findService(String.valueOf(serverId));
+        host = serviceDetails.getIPAddress();
+        port = serviceDetails.getPort();
     }
 
     private void initializeConnection() {
@@ -143,11 +154,8 @@ public class ReservationClient {
     }
 
     private void getItems() {
-        System.out.println("Processing get items request");
         GetItemRequest request = GetItemRequest.newBuilder().build();
-        System.out.println("Sending get item request");
         GetItemResponse response = getItemServiceBlockingStub.getItems(request);
-        System.out.println("Response received with status: " + response.getStatus());
         printAllItems(response.getItemsList());
     }
 
@@ -183,9 +191,7 @@ public class ReservationClient {
                 .newBuilder()
                 .setItem(item)
                 .build();
-        System.out.println("Sending add item request");
         AddItemResponse response = addItemServiceBlockingStub.addItem(request);
-        System.out.println("Response received with status: " + response.getStatus());
     }
 
     private Item getItemDetails(Scanner scanner) {
@@ -215,9 +221,7 @@ public class ReservationClient {
                 .newBuilder()
                 .setItem(item)
                 .build();
-        System.out.println("Sending update item request");
         UpdateItemResponse response = updateItemServiceBlockingStub.updateItem(request);
-        System.out.println("Response received with status: " + response.getStatus());
     }
 
     private void removeItem(Scanner scanner, String userType) {
@@ -231,9 +235,7 @@ public class ReservationClient {
                 .newBuilder()
                 .setId(id)
                 .build();
-        System.out.println("Sending remove item request");
         RemoveItemResponse response = removeItemServiceBlockingStub.removeItem(request);
-        System.out.println("Response received with status: " + response.getStatus());
     }
 
     private void reserveItem(Scanner scanner, String userType) {
@@ -253,8 +255,6 @@ public class ReservationClient {
                 .setCustomerNo(cusNo)
                 .setReservationDate(date)
                 .build();
-        System.out.println("Sending reserve item request");
         ReserveItemResponse response = reserveItemServiceBlockingStub.reserveItem(request);
-        System.out.println("Response received with status: " + response.getStatus());
     }
 }

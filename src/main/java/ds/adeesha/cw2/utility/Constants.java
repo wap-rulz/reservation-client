@@ -1,6 +1,8 @@
 package ds.adeesha.cw2.utility;
 
 public final class Constants {
+    public static final String NAME_SERVICE_ADDRESS = "http://localhost:2379";
+
     public static final String INPUT_EXIT = "0";
     public static final String USER_TYPE_SELLER = "1";
     public static final String USER_TYPE_CUSTOMER = "2";
